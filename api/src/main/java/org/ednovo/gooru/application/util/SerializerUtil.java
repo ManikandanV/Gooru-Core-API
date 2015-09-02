@@ -216,8 +216,6 @@ public class SerializerUtil implements ParameterProperties {
 			try {
 				model = protocolSwitch(model);
 				serializedData = deepSerialize ? serializer.deepSerialize(model) : serializer.serialize(model);
-				log(model, serializedData);
-
 			} catch (Exception ex) {
 				LOGGER.error("serialize: happened to throw exception", ex);
 				if (model instanceof Resource) {

@@ -50,6 +50,7 @@ import org.ednovo.gooru.core.api.model.Code;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.Content;
+import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.ContentProvider;
 import org.ednovo.gooru.core.api.model.ContentProviderAssociation;
 import org.ednovo.gooru.core.api.model.ContentType;
@@ -266,9 +267,15 @@ public class ResourceServiceImpl extends OperationAuthorizer implements Resource
 			resource.setCustomFieldValues(customFieldService.getCustomFieldsValuesOfResource(resource.getGooruOid()));
 			resourceObject.put(RESOURCE, resource);
 		}
-		resourceObject.put(STANDARDS, this.getCollectionService().getStandards(resource.getTaxonomySet(), false, null));
-		resourceObject.put(SKILLS, this.getCollectionService().getSkills(resource.getTaxonomySet()));
-		resourceObject.put(COURSE, this.getCollectionService().getCourse(resource.getTaxonomySet()));
+		ContentMeta contentMeta =  this.getContentRepository().getContentMeta(resource.getContentId());
+		if(contentMeta != null){
+		Object data = contentMeta.getMetaData();
+		if (data != null) {
+			Map<String, Object> metaData = JsonDeserializer.deserialize(String.valueOf(data), new TypeReference<Map<String, Object>>() {
+			});
+			resourceObject.putAll(metaData);
+		  }
+		}
 		setContentProvider(resource);
 		return resourceObject;
 	}

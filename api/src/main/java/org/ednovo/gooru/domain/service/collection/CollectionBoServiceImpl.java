@@ -19,6 +19,7 @@ import org.ednovo.gooru.core.api.model.ContentSettings;
 import org.ednovo.gooru.core.api.model.MetaConstants;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.ResourceType;
+import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.ConstantProperties;
@@ -27,6 +28,7 @@ import org.ednovo.gooru.core.constant.ParameterProperties;
 import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
 import org.ednovo.gooru.domain.service.user.UserService;
 import org.ednovo.gooru.domain.service.v2.ContentService;
+import org.ednovo.gooru.infrastructure.messenger.IndexHandler;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.CollectionDao;
 import org.ednovo.gooru.infrastructure.persistence.hibernate.collaborator.CollaboratorRepository;
@@ -65,6 +67,9 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 
 	@Autowired
 	private CollaboratorRepository collaboratorRepository;
+	
+	@Autowired
+	private IndexHandler indexHandler;
 
 	@Autowired
 	private CollectionEventLog collectionEventLog;
@@ -72,7 +77,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 	private final static String COLLECTION_IMAGE_DIMENSION = "160x120,75x56,120x90,80x60,800x600";
 
 	private final static String LAST_USER_MODIFIED = "lastUserModified";
-
+	
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void deleteCollection(String courseId, String unitId, String lessonId, String collectionId, User user) {
@@ -91,6 +96,7 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		collection.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(collection);
 		getCollectionEventLog().collectionEventLog(courseId, unitId, lessonId, collection, user, null, DELETE);
+		SessionContextSupport.putDeleteContentMeta(collection.getContent());
 	}
 
 	@Override
@@ -649,11 +655,14 @@ public class CollectionBoServiceImpl extends AbstractResourceServiceImpl impleme
 		Long collectionContentId = collectionItem.getCollection().getContentId();
 		this.resetSequence(collectionId, collectionItem.getCollectionItemId(), userUid, COLLECTION_ITEM);
 		getCollectionEventLog().collectionItemEventLog(collectionId, collectionItem, userUid, contentType, null, DELETE);
-		if (contentType.equalsIgnoreCase(QUESTION)) {
+		if (contentType.equalsIgnoreCase(QUESTION) || !resource.getSharing().equalsIgnoreCase(PUBLIC)) {
+			indexHandler.setReIndexRequest(collectionItem.getContent().getGooruOid(), IndexProcessor.DELETE, RESOURCE, null, false, false);
 			getCollectionDao().remove(resource);
 		} else {
 			getCollectionDao().remove(collectionItem);
 		}
+		indexHandler.setReIndexRequest(collectionItem.getCollection().getGooruOid(), IndexProcessor.INDEX, SCOLLECTION, null, false, false);
+		getAsyncExecutor().deleteFromCache(V2_ORGANIZE_DATA + collectionItem.getCollection().getUser().getPartyUid() + "*");
 		updateCollectionMetaDataSummary(collectionContentId, contentType, DELETE);
 	}
 

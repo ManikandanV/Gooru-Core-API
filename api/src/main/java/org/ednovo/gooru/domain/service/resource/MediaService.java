@@ -39,6 +39,8 @@ public interface MediaService {
 	String convertHtmltoPdf(JSONObject data);
 
 	String convertJsonToCsv(JSONObject data);
+	
+	String convertHtmltoExcel(JSONObject data);
 
 	FileMeta handleFileUpload(MediaDTO mediaDTO, Map<String, Object> formField) throws FileNotFoundException, IOException;
 	

@@ -32,10 +32,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ednovo.gooru.application.util.ConfigProperties;
+import org.ednovo.gooru.core.api.model.Content;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.core.constant.Constants;
 import org.ednovo.gooru.core.exception.BadRequestException;
+import org.ednovo.gooru.domain.service.CollectionDeleteHandler;
+import org.ednovo.gooru.infrastructure.messenger.CollectionDeleteProcessor;
 import org.ednovo.gooru.infrastructure.messenger.IndexProcessor;
 import org.ednovo.gooru.kafka.producer.KafkaHandler;
 import org.json.JSONException;
@@ -65,7 +68,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	private static final String API_KEY = "apiKey";
 
 	private static final String EVENT_NAME = "eventName";
-	
+
 	@Autowired
 	private KafkaHandler kafkaService;
 
@@ -75,8 +78,11 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 	@Autowired
 	protected IndexProcessor indexProcessor;
 
+	@Autowired
+	protected CollectionDeleteProcessor collectionDeleteProcessor;
+
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-		
+
 		Enumeration e = gooruConstants.propertyNames();
 		while (e.hasMoreElements()) {
 			String key = (String) e.nextElement();
@@ -145,6 +151,15 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		} catch (Exception ex) {
 			LOGGER.error("Re-index API trigger failed " + ex);
 		}
+		
+		try {
+			Content content = SessionContextSupport.getDeleteContentMeta();
+			if (content != null) {
+				getCollectionDeleteProcessor().deleteContent(content.getGooruOid(), content.getContentType().getName());
+			}
+		} catch (Exception ex) {
+			LOGGER.error("Bulk content(CULCA) sub items deletion failed ", ex);
+		}
 
 		Long endTime = System.currentTimeMillis();
 		SessionContextSupport.putLogParameter("endTime", endTime);
@@ -154,7 +169,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		metrics.put("totalTimeSpentInMs", totalTimeSpentInMs);
 		SessionContextSupport.putLogParameter("metrics", metrics.toString());
 		JSONObject session = SessionContextSupport.getLog().get(Constants.SESSION) != null ? new JSONObject(SessionContextSupport.getLog().get(Constants.SESSION).toString()) : new JSONObject();
-		if (!session.has(SESSIONTOKEN)) { 			
+		if (!session.has(SESSIONTOKEN)) {
 			session.put(SESSIONTOKEN, request.getSession().getAttribute(Constants.SESSION_TOKEN));
 		}
 		if (!session.has(API_KEY) && request.getSession().getAttribute(Constants.APPLICATION_KEY) != null) {
@@ -165,7 +180,7 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 		String logString = SERIALIZER.deepSerialize(log);
 		if (logString != null && SessionContextSupport.getLog() != null && SessionContextSupport.getLog().get(EVENT_NAME) != null) {
 			try {
-				kafkaService.sendEventLog(SessionContextSupport.getLog().get(EVENT_NAME).toString(),logString);
+				kafkaService.sendEventLog(SessionContextSupport.getLog().get(EVENT_NAME).toString(), logString);
 			} catch (Exception e) {
 				LOGGER.error("Error while pushing event log data to kafka : " + e.getMessage());
 				// Print to Activity Log only in case we had issues pushing to
@@ -190,4 +205,9 @@ public class GooruInterceptor extends HandlerInterceptorAdapter {
 			throw new BadRequestException("Input JSON parse failed!");
 		}
 	}
+
+	public CollectionDeleteProcessor getCollectionDeleteProcessor() {
+		return collectionDeleteProcessor;
+	}
+
 }

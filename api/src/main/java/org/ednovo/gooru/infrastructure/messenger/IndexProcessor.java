@@ -156,7 +156,7 @@ public class IndexProcessor extends BaseComponent {
 			final GooruAuthenticationToken authentication = (GooruAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 			String indexMode = redisService.getValue(INDEX_MODE) != null ? redisService.getValue(INDEX_MODE) : DEFAULT_INDEX_MODE;
 			if(indexMode.equalsIgnoreCase(DEFAULT_INDEX_MODE)){
-				indexByKafkaQueue(searchIndexMeta.getReIndexIds(), searchIndexMeta.getAction(), searchIndexMeta.getType(), sessionToken, authentication, searchIndexMeta.getUpdateUserContent(), searchIndexMeta.getUpdateStatisticsData());
+				indexByKafkaQueue(searchIndexMeta.getReIndexIds(), searchIndexMeta.getAction(), searchIndexMeta.getType(), searchIndexMeta.getUpdateUserContent(), searchIndexMeta.getUpdateStatisticsData());
 			}
 			else{
 				index(searchIndexMeta.getReIndexIds(), searchIndexMeta.getAction(), searchIndexMeta.getType(), sessionToken, authentication, searchIndexMeta.getUpdateUserContent(), searchIndexMeta.getUpdateStatisticsData());
@@ -165,7 +165,7 @@ public class IndexProcessor extends BaseComponent {
 	    }
 	}
 	
-	private void indexByKafkaQueue(final String uuids, final String action, final String type, final String sessionToken, final GooruAuthenticationToken authentication, final boolean isUpdateUserContent, final boolean isUpdateStas){
+	public void indexByKafkaQueue(final String uuids, final String action, final String type, final boolean isUpdateUserContent, final boolean isUpdateStas){
 		Map<String, Object> indexData = new HashMap<String, Object>();
 		indexData.put(INDEX_IDS, uuids);
 		indexData.put(INDEX_TYPE, type);

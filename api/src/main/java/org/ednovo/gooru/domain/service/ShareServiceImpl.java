@@ -31,6 +31,7 @@ import java.util.Map;
 import org.ednovo.gooru.application.util.TaxonomyUtil;
 import org.ednovo.gooru.core.api.model.Resource;
 import org.ednovo.gooru.core.api.model.User;
+import org.ednovo.gooru.core.application.util.BaseUtil;
 import org.ednovo.gooru.core.constant.ConfigConstants;
 import org.ednovo.gooru.core.constant.ConstantProperties;
 import org.ednovo.gooru.core.constant.ParameterProperties;
@@ -66,8 +67,8 @@ public class ShareServiceImpl extends BaseServiceImpl implements ShareService, P
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public String getShortenUrl(final String fullUrl, boolean clearCache) {
-		
+	public String getShortenUrl( String fullUrl, boolean clearCache) {
+		fullUrl = BaseUtil.changeHttpsProtocolByHeader(fullUrl);
 		String cacheKey = fullUrl + HYPHEN + TaxonomyUtil.GOORU_ORG_UID;
 		String resonseData = null;
 		if (!clearCache) {

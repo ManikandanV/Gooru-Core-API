@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public class SessionContextSupport {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(SessionContextSupport.class);
 
 	public static GooruAuthenticationToken getAuthentication() {
@@ -22,7 +22,7 @@ public class SessionContextSupport {
 	public static UserCredential getUserCredential() {
 		try {
 			GooruAuthenticationToken authentication = getAuthentication();
-			
+
 			return authentication.getUserCredential();
 		} catch (Exception ex) {
 			return null;
@@ -44,6 +44,7 @@ public class SessionContextSupport {
 			LOGGER.error("Error in put log parameter : " + ex);
 		}
 	}
+
 	public static void putIndexUpdateRequest(SearchIndexMeta searchIndexMeta) {
 		try {
 			RequestSupport.getSessionContext().getSearchIndexMeta().add(searchIndexMeta);
@@ -51,12 +52,29 @@ public class SessionContextSupport {
 			LOGGER.error("Error in put index request : " + ex);
 		}
 	}
+
 	public static List<SearchIndexMeta> getIndexMeta() {
 		try {
 			return RequestSupport.getSessionContext().getSearchIndexMeta();
 		} catch (Exception ex) {
 			LOGGER.error("Error in get index meta data : " + ex);
 			return null;
+		}
+	}
+
+	public static Content getDeleteContentMeta() {
+		try {
+			return RequestSupport.getSessionContext().getDeleteContentMeta();
+		} catch (Exception ex) {
+			return null;
+		}
+	}
+
+	public static void putDeleteContentMeta(Content content) {
+		try {
+			RequestSupport.getSessionContext().setDeleteContentMeta(content);
+		} catch (Exception ex) {
+			LOGGER.error("Error in put value inside delete content meta object : ", ex);
 		}
 	}
 

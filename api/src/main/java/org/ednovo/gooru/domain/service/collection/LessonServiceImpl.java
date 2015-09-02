@@ -12,6 +12,7 @@ import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
+import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.eventlogs.CollectionEventLog;
@@ -90,6 +91,7 @@ public class LessonServiceImpl extends AbstractCollectionServiceImpl implements 
 		lesson.getContent().setLastModified(new Date());
 		lesson.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(lesson);
+		SessionContextSupport.putDeleteContentMeta(lesson.getContent());
 	}
 	
 	@Override

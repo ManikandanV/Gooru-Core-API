@@ -12,6 +12,7 @@ import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
 import org.ednovo.gooru.core.api.model.ContentMeta;
 import org.ednovo.gooru.core.api.model.MetaConstants;
+import org.ednovo.gooru.core.api.model.SessionContextSupport;
 import org.ednovo.gooru.core.api.model.Sharing;
 import org.ednovo.gooru.core.api.model.User;
 import org.ednovo.gooru.domain.service.eventlogs.CourseEventLog;
@@ -27,7 +28,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 
 	@Autowired
 	private CourseEventLog courseEventLog;
-	
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public ActionResponseDTO<Collection> createCourse(Collection collection, User user) {
@@ -43,7 +44,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 			collection.setSharing(Sharing.PRIVATE.getSharing());
 			collection.setCollectionType(CollectionType.COURSE.getCollectionType());
 			CollectionItem course = createCollection(collection, parentCollection, user);
-			getCourseEventLog().courseEventLogs(parentCollection.getGooruOid(), course, user, collection, CREATE );
+			getCourseEventLog().courseEventLogs(parentCollection.getGooruOid(), course, user, collection, CREATE);
 			Map<String, Object> data = generateCourseMetaData(collection, collection, user);
 			data.put(SUMMARY, MetaConstants.COURSE_SUMMARY);
 			createContentMeta(collection, data);
@@ -67,7 +68,7 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 			this.resetSequence(parentCollection, collection.getGooruOid(), newCollection.getPosition(), user.getPartyUid(), COURSE);
 		}
 		CollectionItem course = getCollectionDao().getCollectionItemById(courseId, user);
-		getCourseEventLog().courseEventLogs(course.getCollection().getGooruOid(), course, user, collection, EDIT );
+		getCourseEventLog().courseEventLogs(course.getCollection().getGooruOid(), course, user, collection, EDIT);
 
 	}
 
@@ -102,12 +103,13 @@ public class CourseServiceImpl extends AbstractCollectionServiceImpl implements 
 		rejectIfNull(course, GL0056, COURSE);
 		reject(this.getOperationAuthorizer().hasUnrestrictedContentAccess(courseUId, user), GL0099, 403, COURSE);
 		Collection parentCollection = getCollectionDao().getCollection(user.getPartyUid(), CollectionType.SHElf.getCollectionType());
-		getCourseEventLog().courseEventLogs(course.getCollection().getGooruOid(), course, user, null, DELETE );
+		getCourseEventLog().courseEventLogs(course.getCollection().getGooruOid(), course, user, null, DELETE);
 		this.getCollectionDao().updateClassByCourse(course.getContent().getContentId());
 		this.resetSequence(parentCollection.getGooruOid(), course.getContent().getGooruOid(), user.getPartyUid(), COURSE);
 		course.getContent().setLastModified(new Date());
 		course.getContent().setIsDeleted((short) 1);
 		this.getCollectionDao().save(course);
+		SessionContextSupport.putDeleteContentMeta(course.getContent());
 	}
 
 	private List<Map<String, Object>> getCourses(Map<String, Object> filters, int limit, int offset) {

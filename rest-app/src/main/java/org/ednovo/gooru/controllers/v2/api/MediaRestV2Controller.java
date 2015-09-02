@@ -78,6 +78,18 @@ public class MediaRestV2Controller extends BaseController implements ConstantPro
 		}
 		return toModelAndView(res);
 	}
+	
+	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_HTMLTOPDF })
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	@RequestMapping(method = { RequestMethod.POST }, value = "/htmltoexcel")
+	public ModelAndView createHtmlToExcel(@RequestBody final String data, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+		String res = getMediaService().convertHtmltoExcel(requestData(data));
+		if (res == null) {
+			res = "Failed to generate the excel file!";
+			response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
+		}
+		return toModelAndView(res);
+	}
 
 	@AuthorizeOperations(operations = { GooruOperationConstants.OPERATION_MEDIA_HTMLTOPDF })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)

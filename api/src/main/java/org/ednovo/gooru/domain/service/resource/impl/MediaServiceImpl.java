@@ -34,7 +34,6 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
@@ -221,6 +220,19 @@ public class MediaServiceImpl implements MediaService, ParameterProperties, Cons
 		} catch (JSONException e) {
 		}
 		String filename = RequestUtil.executeRestAPI(data.toString(), settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT,0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/htmltopdf", Method.POST.getName());
+		if (filename != null) { 
+			return UserGroupSupport.getUserOrganizationNfsRealPath() + Constants.UPLOADED_MEDIA_FOLDER  + "/" + Constants.UPLOADED_SUMMARY_FOLDER + "/" + filename;
+		} 
+		return null;
+	}
+	
+	@Override
+	public String convertHtmltoExcel(JSONObject data) {
+		try {
+			data.put(TARGET_FOLDER_PATH, UserGroupSupport.getUserOrganizationNfsInternalPath() +Constants.UPLOADED_MEDIA_FOLDER + "/" + Constants.UPLOADED_SUMMARY_FOLDER + "/");
+		} catch (JSONException e) {
+		}
+		String filename = RequestUtil.executeRestAPI(data.toString(), settingService.getConfigSetting(ConfigConstants.GOORU_CONVERSION_RESTPOINT,0, TaxonomyUtil.GOORU_ORG_UID) + "/conversion/htmltoexcel", Method.POST.getName());
 		if (filename != null) { 
 			return UserGroupSupport.getUserOrganizationNfsRealPath() + Constants.UPLOADED_MEDIA_FOLDER  + "/" + Constants.UPLOADED_SUMMARY_FOLDER + "/" + filename;
 		} 

@@ -124,7 +124,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 
 	public void sendMailToResetPassword(String gooruUid, String password, Boolean flag, String gooruClassicUrl, String mailConfirmationUrl) throws Exception {
 
-		final String serverpath = BaseUtil.changeHttpsProtocol(this.getServerConstants().getProperty("serverPath"));
+		final String serverpath = BaseUtil.changeHttpsProtocolByHeader(this.getServerConstants().getProperty("serverPath"));
 		final Identity identity = this.getUserRepositoryHibernate().findUserByGooruId(gooruUid);
 		String resetPasswordLink = null;
 		String resetPasswordURL = null;
@@ -132,8 +132,8 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		String resetToken = identity.getCredential().getToken();
 		Map<String, Object> map = new HashMap<String, Object>();
 		EventMapping eventMapping = null;
-		gooruClassicUrl = gooruClassicUrl != null ? BaseUtil.changeHttpsProtocol(gooruClassicUrl) : null;
-		mailConfirmationUrl = mailConfirmationUrl != null ? BaseUtil.changeHttpsProtocol(mailConfirmationUrl) : null;
+		gooruClassicUrl = gooruClassicUrl != null ? BaseUtil.changeHttpsProtocolByHeader(gooruClassicUrl) : null;
+		mailConfirmationUrl = mailConfirmationUrl != null ? BaseUtil.changeHttpsProtocolByHeader(mailConfirmationUrl) : null;
 
 		if (identity.getUser().getAccountTypeId() != null && identity.getUser().getAccountTypeId().equals(UserAccountType.ACCOUNT_CHILD)) {
 			Identity parentIdentity = this.getUserRepositoryHibernate().findUserByGooruId(identity.getUser().getParentUser().getGooruUId());
@@ -216,7 +216,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 
 	public void sendMailToConfirm(String gooruUid, String password, String accountType, String tokenId, String encodedDateOfBirth, String gooruClassicUrl, String mailConfirmationUrl, String userGrade, String userCourse) throws Exception {
 
-		final String serverpath = BaseUtil.changeHttpsProtocol(this.getServerConstants().getProperty("serverPath"));
+		final String serverpath = BaseUtil.changeHttpsProtocolByHeader(this.getServerConstants().getProperty("serverPath"));
 		final Identity identity = this.getUserRepositoryHibernate().findUserByGooruId(gooruUid);
 
 		String userEmailId = identity.getExternalId();
@@ -227,7 +227,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		String registrationURL = null;
 		String resetToken = null;
 		Map<String, Object> model = new HashMap<String, Object>();
-		mailConfirmationUrl = mailConfirmationUrl != null ? BaseUtil.changeHttpsProtocol(mailConfirmationUrl) : null;
+		mailConfirmationUrl = mailConfirmationUrl != null ? BaseUtil.changeHttpsProtocolByHeader(mailConfirmationUrl) : null;
 
 		if (encodedDateOfBirth == null) {
 			encodedDateOfBirth = "MTIzNDU2Nzg5"; // encoded data for '123456789'
@@ -348,7 +348,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		}
 		if (attachments != null) {
 			for (Map<String, String> attachment : attachments) {
-				attachment.put("url", BaseUtil.changeToHttpProtocol(attachment.get("url")));
+				attachment.put("url", BaseUtil.changeHttpsProtocolByHeader(attachment.get("url")));
 			}
 			map.put("attachFiles", attachments);
 
@@ -517,7 +517,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 			} else if (eventMapping.getEvent().getDisplayName().equalsIgnoreCase(CustomProperties.EventMapping.GOORU_EXTERNALID_CHANGE.getEvent())) {
 				map.put("oldEmailId", data.get("oldEmailId"));
 				map.put("newMailId", data.get("newMailId"));
-				map.put("baseUrl", BaseUtil.changeHttpsProtocol(data.get("baseUrl")));
+				map.put("baseUrl", BaseUtil.changeHttpsProtocolByHeader(data.get("baseUrl")));
 				sendExternalIdConfirm(data.get("gooruUid"), map);
 			} else if (eventMapping.getEvent().getDisplayName().equalsIgnoreCase(CustomProperties.EventMapping.CHILD_13_CONFIRMATION.getEvent())) {
 				map.put("gooruUid", data.get("gooruUid"));
@@ -631,7 +631,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 		}
 	}
 	public void sendAdminPortalMail(String eventType, String mailId,String firstName,String title,String gooruOid) {
-        final String serverpath = BaseUtil.changeHttpsProtocol(this.getServerConstants().getProperty("serverPath"));
+        final String serverpath = BaseUtil.changeHttpsProtocolByHeader(this.getServerConstants().getProperty("serverPath"));
 			EventMapping eventMapping = this.getEventService().getTemplatesByEventName(eventType);
 				Map<String, Object> map = eventMapData(eventMapping);
                     map.put("serverpath",serverpath);
@@ -652,7 +652,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	
 	public void sendEmailNotificationforComment(Map<String, String> commentData) {
 
-		final String serverpath = BaseUtil.changeHttpsProtocol(this.getServerConstants().getProperty("serverPath"));
+		final String serverpath = BaseUtil.changeHttpsProtocolByHeader(this.getServerConstants().getProperty("serverPath"));
 		String goToCollectionLink = null;
 		String collectionId = commentData.get("collectionId");
 		Identity identity = null;
@@ -691,7 +691,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	
 	public void sendMailToInviteCollaborator(Map<String,Object> collaboratorData) {
 		
-		final String serverpath = BaseUtil.changeHttpsProtocol(this.getServerConstants().getProperty("serverPath"));
+		final String serverpath = BaseUtil.changeHttpsProtocolByHeader(this.getServerConstants().getProperty("serverPath"));
 		Content content = (Content) collaboratorData.get("contentObject");
 		if (content != null){
 			EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.SEND_MAIL_TO_INVITE_COLLABORATOR.getEvent());
@@ -718,7 +718,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	
 	public void sendMailToInviteUser(String email, String gooruOid, User user, String title, String inviteUser, String classCode, String courseId) {
 		
-		final String serverpath = BaseUtil.changeHttpsProtocol(this.getServerConstants().getProperty(SERVERPATH));
+		final String serverpath = BaseUtil.changeHttpsProtocolByHeader(this.getServerConstants().getProperty(SERVERPATH));
 			EventMapping eventMapping = this.getEventService().getTemplatesByEventName(CustomProperties.EventMapping.SEND_MAIL_TO_INVITE_USER_CLASS.getEvent());
 			Map<String, Object> map = eventMapData(eventMapping);
 			map.put("serverpath",serverpath);
@@ -739,7 +739,7 @@ public class MailHandler extends ServerValidationUtils implements ConstantProper
 	}
 
 	public void sendMailToOpenClassUser(String email, String gooruOid, User user, String title, String inviteUser, String classCode, String courseId) {
-		final String serverpath = BaseUtil.changeHttpsProtocol(this.getServerConstants().getProperty(SERVERPATH));
+		final String serverpath = BaseUtil.changeHttpsProtocolByHeader(this.getServerConstants().getProperty(SERVERPATH));
 		StringBuilder url =  new StringBuilder(serverpath);
 		url.append("#student-view&id=").append(gooruOid).append("&c-id=").append(courseId).append("&userEmailId=").append(email);
 		String shortenUrl = this.shareService.getShortenUrl(url.toString(), true);

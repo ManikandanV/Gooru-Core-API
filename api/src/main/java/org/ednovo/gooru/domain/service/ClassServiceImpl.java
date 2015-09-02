@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.ednovo.gooru.application.util.ConfigProperties;
@@ -71,6 +73,7 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	
 	@Autowired
 	private ClassEventLogger classEventLogger;
+	
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -503,5 +506,6 @@ public class ClassServiceImpl extends BaseServiceImpl implements ClassService, C
 	public ClassEventLogger getClassEventLogger() {
 		return classEventLogger;
 	}
+
 
 }

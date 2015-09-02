@@ -8,6 +8,7 @@ import java.util.Set;
 import net.sf.json.JSONArray;
 
 import org.apache.commons.lang.StringUtils;
+import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.CollectionType;
@@ -60,7 +61,7 @@ public class CollectionEventLog extends EventLog {
 			payLoadObject.put(MODE, action);
 			payLoadObject.put(ITEM_SEQUENCE, collection.getItemSequence());
 			if (action.equalsIgnoreCase(CREATE)) {
-				payLoadObject.put(DATA, data);
+				payLoadObject.put(DATA, SerializerUtil.serializeToJson(data, EXCLUDES, true, true));
 				payLoadObject.put(ITEM_ID, collection.getCollectionItemId());
 			}
 			if (collectionType.equalsIgnoreCase(CollectionType.ASSESSMENT.getCollectionType())) {
@@ -103,11 +104,11 @@ public class CollectionEventLog extends EventLog {
 			}
 			if (action.equalsIgnoreCase(CREATE)) {
 				payLoadObject.put(MODE, CREATE);
-				payLoadObject.put(DATA, data);
+				payLoadObject.put(DATA, SerializerUtil.serializeToJson(data, EXCLUDES, true, true));
 				SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
 			} else if (action.equalsIgnoreCase(ADD)) {
 				payLoadObject.put(MODE, ADD);
-				payLoadObject.put(DATA, data);
+				payLoadObject.put(DATA, SerializerUtil.serializeToJson(data, EXCLUDES, true, true));
 				SessionContextSupport.putLogParameter(EVENT_NAME, ITEM_CREATE);
 			} else if (action.equalsIgnoreCase(EDIT)) {
 				payLoadObject.put(MODE, EDIT);

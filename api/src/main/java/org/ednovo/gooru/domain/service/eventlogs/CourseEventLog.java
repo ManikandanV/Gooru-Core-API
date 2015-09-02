@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.sf.json.JSONArray;
 
+import org.ednovo.gooru.application.util.SerializerUtil;
 import org.ednovo.gooru.core.api.model.Collection;
 import org.ednovo.gooru.core.api.model.CollectionItem;
 import org.ednovo.gooru.core.api.model.SessionContextSupport;
@@ -42,7 +43,7 @@ public class CourseEventLog extends EventLog{
 			payLoadObject.put(MODE, action);
 			payLoadObject.put(ITEM_SEQUENCE,course.getItemSequence());
 			if(action.equalsIgnoreCase(CREATE)){
-				payLoadObject.put(DATA, data);
+				payLoadObject.put(DATA, SerializerUtil.serializeToJson(data, EXCLUDES, true, true));
 				payLoadObject.put(ITEM_ID,course.getCollectionItemId());
 			}
 			else if(action.equalsIgnoreCase(EDIT)){

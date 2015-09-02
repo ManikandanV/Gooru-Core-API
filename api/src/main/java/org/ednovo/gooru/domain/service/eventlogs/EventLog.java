@@ -51,6 +51,8 @@ public abstract class EventLog implements ConstantProperties, ParameterPropertie
 	public static final String SHELF_COURSE_RESOURCE = "shelf.course.unit.lesson.collection.resource";
 
 	public static final String SHELF_COURSE_QUESTION = "shelf.course.unit.lesson.collection.question";
+	
+	public static final String[] EXCLUDES = {"*.class"};
 
 	public void putValue(String entityName, String key, String value) throws JSONException {
 		JSONObject log = getLogParameter(entityName);
